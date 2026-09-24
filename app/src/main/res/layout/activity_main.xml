@@ -16,82 +16,88 @@
     android:padding="16dp">
 
     <!--
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Hello World!"
-        app:layout_constraintBottom_toBottomOf="parent
-       app:layout_constraintEnd_toEndOf="parent"
-      app:layout_constraintStart_toStartOf="parent"
-       app:layout_constraintTop_toTopOf="parent" />
-
-
--->
-    <!--
     las medidas se usa dp, densidad de pixeles, para texto sp
 
     wrap_content envolver el contenido
     match_parent
     -->
-    <!--Altura-->
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Altura:"
-        android:textStyle="bold"
-        android:textSize="24sp"/>
 
-    <EditText
-        android:id="@+id/heigthEdidtText"
+    <!--Altura-->
+    <com.google.android.material.textfield.TextInputLayout
+        style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Tu altura en centimetros, tarugo"
-        android:inputType="number"/>
+        android:hint="Altura (cm)">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/heigthEdidtText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="number"/>
+
+    </com.google.android.material.textfield.TextInputLayout>
 
     <!--    Peso-->
-
-    <TextView
+    <com.google.android.material.textfield.TextInputLayout
+        style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Peso:"
-        android:textStyle="bold"
-        android:textSize="24sp"/>
-    <EditText
-        android:id="@+id/weigthEdidtText"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="Tu peso en Kg, tarugo"
-        android:inputType="numberDecimal"/>
+        android:layout_marginTop="16dp"
+        android:hint="Peso (kg)">
 
-    <Button
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/weigthEdidtText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="numberDecimal"/>
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/calculateButon"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Calcular IMC"
         android:layout_gravity="center_horizontal"
-        android:layout_marginTop="32dp"
+        android:layout_marginTop="24dp"
+        app:cornerRadius="24dp"
         />
 
 <!--    Result-->
-    <TextView
-        android:id="@+id/resultTextView"
+    <com.google.android.material.card.MaterialCardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="00.00"
-        android:textStyle="bold"
-        android:textSize="48sp"
-        android:textAlignment="center"/>
+        android:layout_marginTop="24dp"
+        app:cardCornerRadius="16dp"
+        app:cardElevation="2dp">
 
-    <TextView
-        android:id="@+id/categoryTextView"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:textStyle="bold"
-        android:textSize="20sp"
-        android:textAlignment="center"/>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <TextView
+                android:id="@+id/resultTextView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="00.00"
+                android:textStyle="bold"
+                android:textSize="48sp"
+                android:textAlignment="center"/>
+
+            <TextView
+                android:id="@+id/categoryTextView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textStyle="bold"
+                android:textSize="20sp"
+                android:textAlignment="center"/>
+
+        </LinearLayout>
+
+    </com.google.android.material.card.MaterialCardView>
 
 </LinearLayout>
 
 </LinearLayout>
-
-
