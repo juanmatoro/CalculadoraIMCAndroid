@@ -207,14 +207,13 @@
                 android:orientation="vertical"
                 android:padding="16dp">
 
-                <com.airbnb.lottie.LottieAnimationView
+                <ImageView
                     android:id="@+id/resultAnimationView"
                     android:layout_width="120dp"
                     android:layout_height="120dp"
                     android:layout_gravity="center_horizontal"
-                    android:visibility="gone"
-                    app:lottie_autoPlay="false"
-                    app:lottie_loop="true" />
+                    android:importantForAccessibility="no"
+                    android:visibility="gone" />
 
                 <TextView
                     android:id="@+id/resultTextView"

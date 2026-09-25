@@ -11,14 +11,16 @@ import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
 import android.widget.Button
+import android.view.animation.OvershootInterpolator
 import android.widget.EditText
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.activity.enableEdgeToEdge
+import androidx.annotation.DrawableRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import com.airbnb.lottie.LottieAnimationView
 import com.google.android.material.slider.Slider
 import kotlin.math.pow
 import kotlin.math.roundToInt
@@ -37,7 +39,7 @@ class MainActivity : AppCompatActivity() {
     lateinit var resultCardView: View
     lateinit var resultTextView: TextView
     lateinit var categoryTextView: TextView
-    lateinit var resultAnimationView: LottieAnimationView
+    lateinit var resultAnimationView: ImageView
 
     // El peso se guarda en décimas de kg (p.ej. 503 = 50.3 kg) para evitar
     // errores de redondeo al sumar/restar 0.1 repetidamente con Float
@@ -46,7 +48,7 @@ class MainActivity : AppCompatActivity() {
     private data class ImcCategoryInfo(
         val text: String,
         val colorRes: Int,
-        val animationAsset: String
+        val iconRes: Int
     )
 
 
@@ -65,7 +67,7 @@ class MainActivity : AppCompatActivity() {
             insets
         }
 
-        // Buscar por id los componentes en la vista
+        // Buscar por ID los componentes en la vista
 
         alturaValorTextView = findViewById(R.id.alturaValorTextView)
         alturaSlider = findViewById(R.id.alturaSlider)
@@ -151,7 +153,7 @@ class MainActivity : AppCompatActivity() {
             val categoryInfo = getImcCategory(result)
             categoryTextView.text = categoryInfo.text
             categoryTextView.setTextColor(ContextCompat.getColor(this, categoryInfo.colorRes))
-            playCategoryAnimation(categoryInfo.animationAsset)
+            playCategoryAnimation(categoryInfo.iconRes)
 
             resultCardView.visibility = View.VISIBLE
         }
@@ -168,7 +170,7 @@ class MainActivity : AppCompatActivity() {
         updatePesoValor()
         resultTextView.text = getString(R.string.resultado_placeholder)
         categoryTextView.text = ""
-        resultAnimationView.cancelAnimation()
+        resultAnimationView.animate().cancel()
         resultAnimationView.visibility = View.GONE
         resultCardView.visibility = View.GONE
     }
@@ -235,31 +237,36 @@ class MainActivity : AppCompatActivity() {
     private fun getImcCategory(imc: Double): ImcCategoryInfo {
         return when {
             imc < 18.5 -> ImcCategoryInfo(
-                "🍽️ Bajo peso, come más", R.color.imc_bajo_peso, "lottie/bajo_peso.json"
+                "🍽️ Bajo peso, come más", R.color.imc_bajo_peso, R.drawable.ic_imc_bajo_peso
             )
             imc < 25.0 -> ImcCategoryInfo(
-                "✅ Peso saludable, Well done", R.color.imc_saludable, "lottie/saludable.json"
+                "✅ Peso saludable, Well done", R.color.imc_saludable, R.drawable.ic_imc_saludable
             )
             imc < 30.0 -> ImcCategoryInfo(
-                "⚠️ Sobrepeso, hay que cuidarse!", R.color.imc_sobrepeso, "lottie/sobrepeso.json"
+                "⚠️ Sobrepeso, hay que cuidarse!", R.color.imc_sobrepeso, R.drawable.ic_imc_sobrepeso
             )
             else -> ImcCategoryInfo(
-                "🚨 Obesidad, Ponte a dieta ya!", R.color.imc_obesidad, "lottie/obesidad.json"
+                "🚨 Obesidad, Ponte a dieta ya!", R.color.imc_obesidad, R.drawable.ic_imc_obesidad
             )
         }
     }
 
-    // Cada categoría tiene su propio archivo .json en assets/lottie/; si el archivo
-    // aún no existe (por ejemplo, todavía no se ha añadido la animación real) se
-    // captura el fallo para no crashear y simplemente se oculta la animación.
-    private fun playCategoryAnimation(assetPath: String) {
-        resultAnimationView.setFailureListener { error ->
-            Log.w("MainActivity", "No se pudo cargar la animación $assetPath", error)
-            resultAnimationView.visibility = View.GONE
-        }
-        resultAnimationView.setAnimation(assetPath)
+    // El icono parte invisible y a escala 0 en cada cálculo, para que la
+    // entrada con rebote se repita aunque se recalcule sin pulsar "Recalcular"
+    private fun playCategoryAnimation(@DrawableRes iconRes: Int) {
+        resultAnimationView.animate().cancel()
+        resultAnimationView.setImageResource(iconRes)
+        resultAnimationView.alpha = 0f
+        resultAnimationView.scaleX = 0f
+        resultAnimationView.scaleY = 0f
         resultAnimationView.visibility = View.VISIBLE
-        resultAnimationView.playAnimation()
+        resultAnimationView.animate()
+            .alpha(1f)
+            .scaleX(1f)
+            .scaleY(1f)
+            .setDuration(ANIMACION_ICONO_DURACION_MS)
+            .setInterpolator(OvershootInterpolator())
+            .start()
     }
 
     companion object {
@@ -273,5 +280,7 @@ class MainActivity : AppCompatActivity() {
         private const val REPETICION_INTERVALO_INICIAL_MS = 350L
         private const val REPETICION_INTERVALO_MINIMO_MS = 40L
         private const val REPETICION_FACTOR_ACELERACION = 0.85
+
+        private const val ANIMACION_ICONO_DURACION_MS = 500L
     }
 }

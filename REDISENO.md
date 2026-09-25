@@ -10,6 +10,13 @@ No se ha añadido ninguna dependencia nueva: todo se construye con
 componentes que el proyecto ya usaba (`MaterialCardView`,
 `MaterialButton`, `Slider`, `LottieAnimationView`).
 
+> **Nota:** más adelante se eliminó Lottie del proyecto. La animación
+> de la tarjeta de resultado ahora es nativa: un `ImageView` con un
+> vector drawable por categoría (`res/drawable/ic_imc_*.xml`, tintado
+> con los colores `imc_*`) que entra con un escalado y fundido
+> (`ViewPropertyAnimator` + `OvershootInterpolator`). Ver
+> `playCategoryAnimation()` en `MainActivity.kt`.
+
 ---
 
 ## 1. Altura: de campo de texto a `Slider`
