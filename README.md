@@ -29,6 +29,31 @@ y clasifica el resultado según los rangos estándar de la OMS.
 - Tema `Theme.Material3.DayNight` (Material Components)
 - Sin dependencias externas más allá de AndroidX/Material
 
+## Material Design
+
+La interfaz sigue las guías de [Material Design 3](https://m3.material.io/)
+y usa la librería oficial
+[Material Components for Android](https://github.com/material-components/material-components-android).
+Ver [`DISENO_MATERIAL.md`](DISENO_MATERIAL.md) para el detalle de qué
+componentes se aplicaron y por qué.
+
+## Tutorial rápido de uso
+
+1. Abre la app: verás dos campos, **Altura (cm)** y **Peso (kg)**, y el
+   botón **Calcular IMC**.
+2. Introduce tu altura en centímetros (por ejemplo `175`).
+3. Introduce tu peso en kilogramos (por ejemplo `70`).
+4. Pulsa **Calcular IMC**.
+5. Debajo del botón aparece el resultado: el valor del IMC con 2 decimales,
+   la categoría correspondiente (Bajo peso / Peso saludable / Sobrepeso /
+   Obesidad) con su color, y una animación asociada a esa categoría.
+6. Los campos se vacían automáticamente para que puedas hacer un nuevo
+   cálculo.
+
+Si dejas un campo vacío, introduces texto no numérico o un valor ≤ 0, el
+campo correspondiente se marca en rojo con un mensaje de error y no se
+realiza el cálculo.
+
 ## Requisitos
 
 - Android Studio (última versión estable)
