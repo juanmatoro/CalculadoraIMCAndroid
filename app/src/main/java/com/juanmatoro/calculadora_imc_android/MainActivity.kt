@@ -1,9 +1,17 @@
 package com.juanmatoro.calculadora_imc_android
 
+import android.annotation.SuppressLint
+import android.content.Context
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.util.Log
+import android.view.MotionEvent
 import android.view.View
-import android.widget.Button
+import android.view.inputmethod.EditorInfo
+import android.view.inputmethod.InputMethodManager
+import android
+import android.widget.EditText
 import android.widget.TextView
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
@@ -13,13 +21,14 @@ import androidx.core.view.WindowInsetsCompat
 import com.airbnb.lottie.LottieAnimationView
 import com.google.android.material.slider.Slider
 import kotlin.math.pow
+import kotlin.math.roundToInt
 
 class MainActivity : AppCompatActivity() {
 
 
     lateinit var alturaValorTextView: TextView
     lateinit var alturaSlider: Slider
-    lateinit var pesoValorTextView: TextView
+    lateinit var pesoValorTextView: EditText
     lateinit var pesoMenosButon: Button
     lateinit var pesoMasButon: Button
     lateinit var calculateButon: Button
@@ -41,6 +50,11 @@ class MainActivity : AppCompatActivity() {
     )
 
 
+    // Los OnTouchListener de los botones +/- solo detectan cuándo se
+    // suelta el dedo para detener la repetición; nunca consumen el
+    // evento (siempre devuelven false), así que el click normal y el de
+    // accesibilidad (TalkBack) se siguen procesando exactamente igual
+    @SuppressLint("ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -69,8 +83,49 @@ class MainActivity : AppCompatActivity() {
         alturaSlider.addOnChangeListener { _, value, _ -> updateAlturaValor(value) }
 
         updatePesoValor()
+
+        // Un toque simple ajusta 0.1 kg; mantener pulsado repite el ajuste
+        // cada vez más rápido, para poder movernos deprisa por el rango
         pesoMenosButon.setOnClickListener { cambiarPeso(-PESO_PASO_DECIMAS) }
         pesoMasButon.setOnClickListener { cambiarPeso(PESO_PASO_DECIMAS) }
+        pesoMenosButon.setOnLongClickListener { iniciarRepeticionPeso(pesoMenosButon, -PESO_PASO_DECIMAS); true }
+        pesoMasButon.setOnLongClickListener { iniciarRepeticionPeso(pesoMasButon, PESO_PASO_DECIMAS); true }
+        val detenerRepeticionAlSoltar = View.OnTouchListener { boton, event ->
+            if (event.action == MotionEvent.ACTION_UP || event.action == MotionEvent.ACTION_CANCEL) {
+                detenerRepeticionPeso(boton)
+            }
+            false
+        }
+        pesoMenosButon.setOnTouchListener(detenerRepeticionAlSoltar)
+        pesoMasButon.setOnTouchListener(detenerRepeticionAlSoltar)
+
+        // El número también se puede editar directamente desde el teclado,
+        // para saltar rápido a un valor lejano sin tocar +/- muchas veces.
+        // Se actualiza pesoDecimas con cada pulsación de tecla (no solo al
+        // perder el foco): un MaterialButton no roba el foco del campo al
+        // tocarlo (solo lo hacen otros campos de texto), así que si
+        // solo confirmáramos el valor al perder el foco, tocar
+        // "Calcular IMC" justo después de escribir ignoraría lo escrito
+        pesoValorTextView.addTextChangedListener(object : TextWatcher {
+            override fun afterTextChanged(s: Editable?) {
+                parsearPesoEscrito(s.toString())?.let { pesoDecimas = it }
+            }
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+        })
+        pesoValorTextView.setOnFocusChangeListener { _, tieneFoco ->
+            if (!tieneFoco) confirmarPesoEscrito()
+        }
+        pesoValorTextView.setOnEditorActionListener { _, actionId, _ ->
+            if (actionId == EditorInfo.IME_ACTION_DONE) {
+                confirmarPesoEscrito()
+                ocultarTeclado(pesoValorTextView)
+                pesoValorTextView.clearFocus()
+                true
+            } else {
+                false
+            }
+        }
 
 
         // Dar funcionalidad a los componentes
@@ -128,7 +183,53 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun updatePesoValor() {
-        pesoValorTextView.text = "%.1f".format(pesoDecimas / 10.0)
+        pesoValorTextView.setText("%.1f".format(pesoDecimas / 10.0))
+    }
+
+    // Admite tanto "50.5" como "50,5" (teclados en locales que usan coma
+    // decimal). Si el texto está vacío o no es un número válido, devuelve
+    // null y quien llame mantiene el peso anterior en vez de forzar un
+    // valor por defecto que el usuario no ha pedido
+    private fun parsearPesoEscrito(texto: String): Int? {
+        val valor = texto.replace(',', '.').toDoubleOrNull() ?: return null
+        return (valor * 10).roundToInt().coerceIn(PESO_MINIMO_DECIMAS, PESO_MAXIMO_DECIMAS)
+    }
+
+    // Al terminar de editar (se pierde el foco o se pulsa "Hecho" en el
+    // teclado) se reformatea el número mostrado, p.ej. "8" pasa a "8.0",
+    // o se restaura el último valor válido si el campo quedó vacío
+    private fun confirmarPesoEscrito() {
+        parsearPesoEscrito(pesoValorTextView.text.toString())?.let { pesoDecimas = it }
+        updatePesoValor()
+    }
+
+    private fun ocultarTeclado(view: View) {
+        val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        imm.hideSoftInputFromWindow(view.windowToken, 0)
+    }
+
+    // Mantener pulsado +/- repite el ajuste de 0.1 kg, acelerando el
+    // intervalo entre repeticiones para poder recorrer rango rápido sin
+    // perder la precisión del toque simple
+    private fun iniciarRepeticionPeso(boton: View, deltaDecimas: Int) {
+        detenerRepeticionPeso(boton)
+        val runnable = object : Runnable {
+            var intervaloMs = REPETICION_INTERVALO_INICIAL_MS
+            override fun run() {
+                cambiarPeso(deltaDecimas)
+                intervaloMs = (intervaloMs * REPETICION_FACTOR_ACELERACION)
+                    .toLong()
+                    .coerceAtLeast(REPETICION_INTERVALO_MINIMO_MS)
+                boton.postDelayed(this, intervaloMs)
+            }
+        }
+        boton.tag = runnable
+        boton.postDelayed(runnable, REPETICION_INTERVALO_INICIAL_MS)
+    }
+
+    private fun detenerRepeticionPeso(boton: View) {
+        (boton.tag as? Runnable)?.let { boton.removeCallbacks(it) }
+        boton.tag = null
     }
 
     private fun getImcCategory(imc: Double): ImcCategoryInfo {
@@ -168,5 +269,9 @@ class MainActivity : AppCompatActivity() {
         private const val PESO_PASO_DECIMAS = 1 // 0.1 kg
         private const val PESO_MINIMO_DECIMAS = 1 // 0.1 kg
         private const val PESO_MAXIMO_DECIMAS = 2000 // 200 kg
+
+        private const val REPETICION_INTERVALO_INICIAL_MS = 350L
+        private const val REPETICION_INTERVALO_MINIMO_MS = 40L
+        private const val REPETICION_FACTOR_ACELERACION = 0.85
     }
 }

@@ -334,6 +334,148 @@ está visible como si no.
 
 ---
 
+## 8. Peso: editable a mano + pulsación mantenida en +/-
+
+**Problema:** ajustar el peso solo con +/- de 0.1 en 0.1 kg era muy
+preciso pero lento para saltos grandes (p.ej. de 50 a 90 kg son 400
+toques).
+
+**Solución — dos mejoras combinadas:**
+
+### 8.1 El número se puede escribir directamente
+
+**Vista:** `pesoValorTextView` pasa de `TextView` a `EditText`:
+```xml
+<EditText
+    android:id="@+id/pesoValorTextView"
+    android:background="@null"
+    android:gravity="center"
+    android:imeOptions="actionDone"
+    android:importantForAutofill="no"
+    android:inputType="numberDecimal"
+    android:maxLength="5"
+    android:minEms="3"
+    android:selectAllOnFocus="true"
+    android:textSize="48sp"
+    android:textStyle="bold" />
+```
+- `background="@null"` quita el subrayado por defecto de un
+  `EditText`, para que siga pareciendo un número grande "suelto" y no
+  un campo de formulario.
+- `selectAllOnFocus="true"` selecciona el valor actual al tocarlo, así
+  escribir sobreescribe directamente sin tener que borrar antes.
+- `importantForAutofill="no"`: este campo no es un dato "rellenable"
+  típico (nombre, dirección...), así que se excluye explícitamente
+  del sistema de autocompletado en vez de dejar que lint avise.
+- En `pesoTituloTextView` (el texto "Peso:") se añadió
+  `android:labelFor="@id/pesoValorTextView"`, para que un lector de
+  pantalla (TalkBack) sepa qué campo describe esa etiqueta.
+
+**Lógica — por qué hace falta un `TextWatcher` y no basta con
+"al perder el foco":**
+
+La primera versión de este cambio confirmaba el valor escrito solo
+cuando el campo perdía el foco (`setOnFocusChangeListener`) o al
+pulsar "Hecho" en el teclado. **Tenía un bug:** un `MaterialButton`
+normal, en modo táctil, **no roba el foco** al tocarlo (solo lo hacen
+los campos de texto) — así que si el usuario escribía un peso nuevo y
+tocaba "Calcular IMC" directamente, sin pulsar antes "Hecho", el
+click se procesaba con el peso **anterior**, ignorando en silencio lo
+que se acababa de escribir. Se detectó probando ese flujo exacto en
+un emulador.
+
+**Arreglo:** un `TextWatcher` mantiene `pesoDecimas` sincronizado con
+cada pulsación de tecla, no solo al terminar de editar:
+```kotlin
+pesoValorTextView.addTextChangedListener(object : TextWatcher {
+    override fun afterTextChanged(s: Editable?) {
+        parsearPesoEscrito(s.toString())?.let { pesoDecimas = it }
+    }
+    override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+    override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+})
+```
+```kotlin
+private fun parsearPesoEscrito(texto: String): Int? {
+    val valor = texto.replace(',', '.').toDoubleOrNull() ?: return null
+    return (valor * 10).roundToInt().coerceIn(PESO_MINIMO_DECIMAS, PESO_MAXIMO_DECIMAS)
+}
+```
+- `parsearPesoEscrito` es la misma lógica de antes (admite coma o
+  punto decimal; si el texto no es un número válido, devuelve `null`
+  y no se toca `pesoDecimas`), extraída a una función para que la
+  reutilicen tanto el `TextWatcher` como `confirmarPesoEscrito()`.
+- `confirmarPesoEscrito()` (la que se llama al perder el foco o
+  pulsar "Hecho") ya no es la única fuente de verdad — ahora es solo
+  el paso "cosmético" final: reformatea lo escrito (p.ej. "8" pasa a
+  mostrarse "8.0") o restaura el último valor válido si el campo
+  quedó vacío. La corrección del cálculo ya no depende de que ese
+  evento llegue a dispararse.
+- Como `updatePesoValor()` (llamada desde `cambiarPeso()` o
+  `resetForm()`) hace `setText(...)`, eso también dispara el
+  `TextWatcher` — pero es inofensivo: vuelve a parsear el mismo texto
+  que se acaba de escribir y obtiene el mismo valor, sin bucles ni
+  efectos secundarios.
+
+### 8.2 Mantener pulsado +/- acelera el ajuste
+
+**Lógica:** cada botón, además del `setOnClickListener` de siempre
+(un toque = 0.1 kg), gana un `setOnLongClickListener` que arranca una
+repetición automática, y un `setOnTouchListener` que la detiene al
+soltar:
+```kotlin
+private fun iniciarRepeticionPeso(boton: View, deltaDecimas: Int) {
+    detenerRepeticionPeso(boton)
+    val runnable = object : Runnable {
+        var intervaloMs = REPETICION_INTERVALO_INICIAL_MS
+        override fun run() {
+            cambiarPeso(deltaDecimas)
+            intervaloMs = (intervaloMs * REPETICION_FACTOR_ACELERACION)
+                .toLong()
+                .coerceAtLeast(REPETICION_INTERVALO_MINIMO_MS)
+            boton.postDelayed(this, intervaloMs)
+        }
+    }
+    boton.tag = runnable
+    boton.postDelayed(runnable, REPETICION_INTERVALO_INICIAL_MS)
+}
+
+private fun detenerRepeticionPeso(boton: View) {
+    (boton.tag as? Runnable)?.let { boton.removeCallbacks(it) }
+    boton.tag = null
+}
+```
+- Se usa `View.postDelayed`/`removeCallbacks` (el propio mecanismo de
+  colas de mensajes de cualquier `View`) en vez de crear un `Handler`
+  aparte — más simple y ligado automáticamente al ciclo de vida de la
+  vista.
+- El intervalo entre repeticiones empieza en
+  `REPETICION_INTERVALO_INICIAL_MS` (350 ms) y se multiplica por
+  `REPETICION_FACTOR_ACELERACION` (0.85) en cada paso, con un suelo de
+  `REPETICION_INTERVALO_MINIMO_MS` (40 ms) — así el ajuste empieza
+  suave y va acelerando cuanto más tiempo se mantiene pulsado.
+- El `Runnable` se guarda en `boton.tag` para que
+  `detenerRepeticionPeso` sepa cuál cancelar; con solo dos botones no
+  hacía falta una variable por cada uno.
+- Por qué **no** hace doble paso al soltar: Android no dispara el
+  `click` normal tras un `long click` ya reconocido (lo suprime
+  internamente), así que soltar el dedo después de una repetición
+  larga no añade un ajuste de más.
+- El `setOnTouchListener` nunca consume el evento (siempre devuelve
+  `false`), solo mira cuándo llega `ACTION_UP`/`ACTION_CANCEL` para
+  parar la repetición — el click normal y el de accesibilidad
+  (TalkBack) se procesan exactamente igual que si no estuviera. Por
+  eso se anotó `onCreate` con
+  `@SuppressLint("ClickableViewAccessibility")`: es el aviso genérico
+  de lint para "tienes un `OnTouchListener` en un botón", pero en
+  este caso concreto es seguro.
+
+Probado en emulador: escribir un valor y calcular sin pulsar "Hecho"
+(el caso que estaba roto), y mantener pulsado "+" ~2.5s, que sube el
+peso de 83.6 a 85.0 kg acelerando progresivamente.
+
+---
+
 ## Verificación
 
 Para cada cambio de este documento se comprobó:

@@ -109,6 +109,7 @@
                     android:id="@+id/pesoTituloTextView"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:labelFor="@id/pesoValorTextView"
                     android:text="@string/peso_titulo"
                     android:textAlignment="viewStart"
                     android:textSize="16sp"
@@ -137,12 +138,20 @@
                         android:textSize="20sp"
                         app:cornerRadius="14dp" />
 
-                    <TextView
+                    <EditText
                         android:id="@+id/pesoValorTextView"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="16dp"
                         android:layout_marginEnd="16dp"
+                        android:background="@null"
+                        android:gravity="center"
+                        android:imeOptions="actionDone"
+                        android:importantForAutofill="no"
+                        android:inputType="numberDecimal"
+                        android:maxLength="5"
+                        android:minEms="3"
+                        android:selectAllOnFocus="true"
                         android:textSize="48sp"
                         android:textStyle="bold"
                         tools:text="50.0" />
