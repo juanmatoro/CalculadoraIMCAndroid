@@ -25,6 +25,7 @@ class MainActivity : AppCompatActivity() {
     lateinit var calculateButon: Button
     lateinit var clearButon: Button
 
+    lateinit var resultCardView: View
     lateinit var resultTextView: TextView
     lateinit var categoryTextView: TextView
     lateinit var resultAnimationView: LottieAnimationView
@@ -59,6 +60,7 @@ class MainActivity : AppCompatActivity() {
         pesoMasButon = findViewById(R.id.pesoMasButon)
         calculateButon = findViewById(R.id.calculateButon)
         clearButon = findViewById(R.id.clearButon)
+        resultCardView = findViewById(R.id.resultCardView)
         resultTextView = findViewById(R.id.resultTextView)
         categoryTextView = findViewById(R.id.categoryTextView)
         resultAnimationView = findViewById(R.id.resultAnimationView)
@@ -95,6 +97,8 @@ class MainActivity : AppCompatActivity() {
             categoryTextView.text = categoryInfo.text
             categoryTextView.setTextColor(ContextCompat.getColor(this, categoryInfo.colorRes))
             playCategoryAnimation(categoryInfo.animationAsset)
+
+            resultCardView.visibility = View.VISIBLE
         }
 
         clearButon.setOnClickListener {
@@ -111,6 +115,7 @@ class MainActivity : AppCompatActivity() {
         categoryTextView.text = ""
         resultAnimationView.cancelAnimation()
         resultAnimationView.visibility = View.GONE
+        resultCardView.visibility = View.GONE
     }
 
     private fun updateAlturaValor(value: Float) {
