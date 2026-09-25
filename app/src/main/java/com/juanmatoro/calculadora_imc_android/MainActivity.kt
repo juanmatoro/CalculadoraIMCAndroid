@@ -18,7 +18,7 @@ import kotlin.math.pow
 class MainActivity : AppCompatActivity() {
 
 
-    lateinit var alturaLabelTextView: TextView
+    lateinit var alturaValorTextView: TextView
     lateinit var alturaSlider: Slider
     lateinit var weigthEdidtText: EditText
     lateinit var calculateButon: Button
@@ -47,7 +47,7 @@ class MainActivity : AppCompatActivity() {
 
         // Buscar por id los componentes en la vista
 
-        alturaLabelTextView = findViewById(R.id.alturaLabelTextView)
+        alturaValorTextView = findViewById(R.id.alturaValorTextView)
         alturaSlider = findViewById(R.id.alturaSlider)
         weigthEdidtText = findViewById(R.id.weigthEdidtText)
         calculateButon = findViewById(R.id.calculateButon)
@@ -56,8 +56,8 @@ class MainActivity : AppCompatActivity() {
         categoryTextView = findViewById(R.id.categoryTextView)
         resultAnimationView = findViewById(R.id.resultAnimationView)
 
-        updateAlturaLabel(alturaSlider.value)
-        alturaSlider.addOnChangeListener { _, value, _ -> updateAlturaLabel(value) }
+        updateAlturaValor(alturaSlider.value)
+        alturaSlider.addOnChangeListener { _, value, _ -> updateAlturaValor(value) }
 
 
         // Dar funcionalidad a los componentes
@@ -109,8 +109,8 @@ class MainActivity : AppCompatActivity() {
         resultAnimationView.visibility = View.GONE
     }
 
-    private fun updateAlturaLabel(value: Float) {
-        alturaLabelTextView.text = getString(R.string.label_altura, value.toInt())
+    private fun updateAlturaValor(value: Float) {
+        alturaValorTextView.text = value.toInt().toString()
     }
 
     private fun getImcCategory(imc: Double): ImcCategoryInfo {

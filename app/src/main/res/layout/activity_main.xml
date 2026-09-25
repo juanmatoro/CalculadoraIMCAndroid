@@ -23,24 +23,51 @@
     -->
 
     <!--Altura-->
-    <TextView
-        android:id="@+id/alturaLabelTextView"
+    <com.google.android.material.card.MaterialCardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textStyle="bold"
-        android:textSize="16sp"
-        tools:text="Altura: 160 cm"/>
+        app:cardCornerRadius="16dp"
+        app:cardElevation="2dp">
 
-    <com.google.android.material.slider.Slider
-        android:id="@+id/alturaSlider"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:value="160"
-        android:valueFrom="100"
-        android:valueTo="250"
-        android:stepSize="1"
-        app:labelBehavior="floating"
-        app:tickVisible="false"/>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <TextView
+                android:id="@+id/alturaTituloTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/altura_titulo"
+                android:textStyle="bold"
+                android:textSize="16sp"/>
+
+            <TextView
+                android:id="@+id/alturaValorTextView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:textStyle="bold"
+                android:textSize="48sp"
+                android:textAlignment="center"
+                tools:text="160"/>
+
+            <com.google.android.material.slider.Slider
+                android:id="@+id/alturaSlider"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:value="160"
+                android:valueFrom="100"
+                android:valueTo="250"
+                android:stepSize="1"
+                app:labelBehavior="floating"
+                app:tickVisible="false"/>
+
+        </LinearLayout>
+
+    </com.google.android.material.card.MaterialCardView>
 
     <!--    Peso-->
     <com.google.android.material.textfield.TextInputLayout
