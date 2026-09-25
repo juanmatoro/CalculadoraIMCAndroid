@@ -4,7 +4,6 @@ import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.widget.Button
-import android.widget.EditText
 import android.widget.TextView
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
@@ -20,13 +19,19 @@ class MainActivity : AppCompatActivity() {
 
     lateinit var alturaValorTextView: TextView
     lateinit var alturaSlider: Slider
-    lateinit var weigthEdidtText: EditText
+    lateinit var pesoValorTextView: TextView
+    lateinit var pesoMenosButon: Button
+    lateinit var pesoMasButon: Button
     lateinit var calculateButon: Button
     lateinit var clearButon: Button
 
     lateinit var resultTextView: TextView
     lateinit var categoryTextView: TextView
     lateinit var resultAnimationView: LottieAnimationView
+
+    // El peso se guarda en décimas de kg (p.ej. 503 = 50.3 kg) para evitar
+    // errores de redondeo al sumar/restar 0.1 repetidamente con Float
+    private var pesoDecimas = (PESO_INICIAL * 10).toInt()
 
     private data class ImcCategoryInfo(
         val text: String,
@@ -49,7 +54,9 @@ class MainActivity : AppCompatActivity() {
 
         alturaValorTextView = findViewById(R.id.alturaValorTextView)
         alturaSlider = findViewById(R.id.alturaSlider)
-        weigthEdidtText = findViewById(R.id.weigthEdidtText)
+        pesoValorTextView = findViewById(R.id.pesoValorTextView)
+        pesoMenosButon = findViewById(R.id.pesoMenosButon)
+        pesoMasButon = findViewById(R.id.pesoMasButon)
         calculateButon = findViewById(R.id.calculateButon)
         clearButon = findViewById(R.id.clearButon)
         resultTextView = findViewById(R.id.resultTextView)
@@ -59,6 +66,10 @@ class MainActivity : AppCompatActivity() {
         updateAlturaValor(alturaSlider.value)
         alturaSlider.addOnChangeListener { _, value, _ -> updateAlturaValor(value) }
 
+        updatePesoValor()
+        pesoMenosButon.setOnClickListener { cambiarPeso(-PESO_PASO_DECIMAS) }
+        pesoMasButon.setOnClickListener { cambiarPeso(PESO_PASO_DECIMAS) }
+
 
         // Dar funcionalidad a los componentes
 
@@ -66,18 +77,11 @@ class MainActivity : AppCompatActivity() {
 
             Log.d("MainActivity", "Boton pulsado")
 
-            // El slider siempre entrega un valor válido dentro de [100, 270],
-            // así que la altura ya no necesita validación
+            // Tanto el slider de altura como el selector de peso siempre
+            // entregan un valor válido dentro de su rango, así que ya no
+            // hace falta validación manual
             val height = alturaSlider.value.toDouble()
-
-            // toDoubleOrNull() devuelve null en vez de lanzar excepción si el campo
-            // está vacío o no es un número, así evitamos el crash
-            val weigth = weigthEdidtText.text.toString().toDoubleOrNull()
-
-            if (weigth == null || weigth <= 0.0) {
-                weigthEdidtText.error = "Introduce un peso válido"
-                return@setOnClickListener
-            }
+            val weigth = pesoDecimas / 10.0
 
             val heightInMeters = height / 100
 
@@ -100,9 +104,9 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun resetForm() {
-        weigthEdidtText.text.clear()
-        weigthEdidtText.error = null
         alturaSlider.value = ALTURA_POR_DEFECTO
+        pesoDecimas = (PESO_INICIAL * 10).toInt()
+        updatePesoValor()
         resultTextView.text = getString(R.string.resultado_placeholder)
         categoryTextView.text = ""
         resultAnimationView.cancelAnimation()
@@ -111,6 +115,15 @@ class MainActivity : AppCompatActivity() {
 
     private fun updateAlturaValor(value: Float) {
         alturaValorTextView.text = value.toInt().toString()
+    }
+
+    private fun cambiarPeso(deltaDecimas: Int) {
+        pesoDecimas = (pesoDecimas + deltaDecimas).coerceIn(PESO_MINIMO_DECIMAS, PESO_MAXIMO_DECIMAS)
+        updatePesoValor()
+    }
+
+    private fun updatePesoValor() {
+        pesoValorTextView.text = "%.1f".format(pesoDecimas / 10.0)
     }
 
     private fun getImcCategory(imc: Double): ImcCategoryInfo {
@@ -145,5 +158,10 @@ class MainActivity : AppCompatActivity() {
 
     companion object {
         private const val ALTURA_POR_DEFECTO = 170f
+
+        private const val PESO_INICIAL = 50f
+        private const val PESO_PASO_DECIMAS = 1 // 0.1 kg
+        private const val PESO_MINIMO_DECIMAS = 1 // 0.1 kg
+        private const val PESO_MAXIMO_DECIMAS = 2000 // 200 kg
     }
 }
