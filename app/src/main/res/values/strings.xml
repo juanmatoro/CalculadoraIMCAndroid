@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">Calculadora-IMC-Android</string>
-    <string name="altura_titulo">Altura</string>
-    <string name="peso_titulo">Peso</string>
+    <string name="altura_titulo">Altura:</string>
+    <string name="peso_titulo">Peso:</string>
     <string name="peso_menos">−</string>
     <string name="peso_mas">+</string>
     <string name="unidad_kg">kg</string>

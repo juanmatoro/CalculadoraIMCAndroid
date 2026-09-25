@@ -99,7 +99,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="@string/peso_titulo"
-                    android:textAlignment="center"
+                    android:textAlignment="viewStart"
                     android:textSize="16sp"
                     android:textStyle="bold" />
 
