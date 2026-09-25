@@ -29,17 +29,18 @@
         android:layout_height="wrap_content"
         android:textStyle="bold"
         android:textSize="16sp"
-        tools:text="Altura: 170 cm"/>
+        tools:text="Altura: 160 cm"/>
 
     <com.google.android.material.slider.Slider
         android:id="@+id/alturaSlider"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:value="170"
+        android:value="160"
         android:valueFrom="100"
-        android:valueTo="270"
+        android:valueTo="250"
         android:stepSize="1"
-        app:labelBehavior="floating"/>
+        app:labelBehavior="floating"
+        app:tickVisible="false"/>
 
     <!--    Peso-->
     <com.google.android.material.textfield.TextInputLayout
@@ -57,15 +58,32 @@
 
     </com.google.android.material.textfield.TextInputLayout>
 
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/calculateButon"
+    <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/calcular_imc"
         android:layout_gravity="center_horizontal"
         android:layout_marginTop="24dp"
-        app:cornerRadius="24dp"
-        />
+        android:orientation="horizontal">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/calculateButon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/calcular_imc"
+            app:cornerRadius="24dp"
+            />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/clearButon"
+            style="@style/Widget.Material3.Button.OutlinedButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:text="@string/borrar"
+            app:cornerRadius="24dp"
+            />
+
+    </LinearLayout>
 
 <!--    Result-->
     <com.google.android.material.card.MaterialCardView

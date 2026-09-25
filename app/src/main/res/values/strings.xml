@@ -3,5 +3,6 @@
     <string name="label_altura">Altura: %1$d cm</string>
     <string name="hint_peso">Peso (kg)</string>
     <string name="calcular_imc">Calcular IMC</string>
+    <string name="borrar">Borrar</string>
     <string name="resultado_placeholder">00.00</string>
 </resources>

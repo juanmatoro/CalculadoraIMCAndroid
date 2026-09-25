@@ -22,6 +22,7 @@ class MainActivity : AppCompatActivity() {
     lateinit var alturaSlider: Slider
     lateinit var weigthEdidtText: EditText
     lateinit var calculateButon: Button
+    lateinit var clearButon: Button
 
     lateinit var resultTextView: TextView
     lateinit var categoryTextView: TextView
@@ -50,6 +51,7 @@ class MainActivity : AppCompatActivity() {
         alturaSlider = findViewById(R.id.alturaSlider)
         weigthEdidtText = findViewById(R.id.weigthEdidtText)
         calculateButon = findViewById(R.id.calculateButon)
+        clearButon = findViewById(R.id.clearButon)
         resultTextView = findViewById(R.id.resultTextView)
         categoryTextView = findViewById(R.id.categoryTextView)
         resultAnimationView = findViewById(R.id.resultAnimationView)
@@ -89,15 +91,22 @@ class MainActivity : AppCompatActivity() {
             categoryTextView.text = categoryInfo.text
             categoryTextView.setTextColor(ContextCompat.getColor(this, categoryInfo.colorRes))
             playCategoryAnimation(categoryInfo.animationAsset)
-
-            clearFields()
         }
 
+        clearButon.setOnClickListener {
+            resetForm()
+        }
 
     }
 
-    private fun clearFields() {
+    private fun resetForm() {
         weigthEdidtText.text.clear()
+        weigthEdidtText.error = null
+        alturaSlider.value = ALTURA_POR_DEFECTO
+        resultTextView.text = getString(R.string.resultado_placeholder)
+        categoryTextView.text = ""
+        resultAnimationView.cancelAnimation()
+        resultAnimationView.visibility = View.GONE
     }
 
     private fun updateAlturaLabel(value: Float) {
@@ -132,5 +141,9 @@ class MainActivity : AppCompatActivity() {
         resultAnimationView.setAnimation(assetPath)
         resultAnimationView.visibility = View.VISIBLE
         resultAnimationView.playAnimation()
+    }
+
+    companion object {
+        private const val ALTURA_POR_DEFECTO = 170f
     }
 }
