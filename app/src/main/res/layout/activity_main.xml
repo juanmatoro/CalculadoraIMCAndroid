@@ -23,6 +23,16 @@
     match_parent
     -->
 
+        <TextView
+            android:id="@+id/tituloPantallaTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:text="@string/titulo_pantalla"
+            android:textAlignment="center"
+            android:textSize="24sp"
+            android:textStyle="bold" />
+
         <!--Altura-->
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
@@ -157,31 +167,6 @@
 
         </com.google.android.material.card.MaterialCardView>
 
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:layout_marginTop="24dp"
-            android:orientation="horizontal">
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/calculateButon"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/calcular_imc"
-                app:cornerRadius="24dp" />
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/clearButon"
-                style="@style/Widget.Material3.Button.OutlinedButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:text="@string/borrar"
-                app:cornerRadius="24dp" />
-
-        </LinearLayout>
-
         <!--    Result-->
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
@@ -225,6 +210,31 @@
             </LinearLayout>
 
         </com.google.android.material.card.MaterialCardView>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="24dp"
+            android:orientation="horizontal">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/calculateButon"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/calcular_imc"
+                app:cornerRadius="24dp" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/clearButon"
+                style="@style/Widget.Material3.Button.OutlinedButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:text="@string/recalcular"
+                app:cornerRadius="24dp" />
+
+        </LinearLayout>
 
     </LinearLayout>
 

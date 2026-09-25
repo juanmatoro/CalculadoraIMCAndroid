@@ -5,7 +5,8 @@
     <string name="peso_menos">−</string>
     <string name="peso_mas">+</string>
     <string name="unidad_kg">kg</string>
+    <string name="titulo_pantalla">Calcula tu IMC</string>
     <string name="calcular_imc">Calcular IMC</string>
-    <string name="borrar">Borrar</string>
+    <string name="recalcular">Recalcular</string>
     <string name="resultado_placeholder">00.00</string>
 </resources>
