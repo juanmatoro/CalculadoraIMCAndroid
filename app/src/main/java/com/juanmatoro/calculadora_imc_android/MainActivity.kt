@@ -2,6 +2,7 @@ package com.juanmatoro.calculadora_imc_android
 
 import android.os.Bundle
 import android.util.Log
+import android.view.View
 import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
@@ -10,6 +11,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import com.airbnb.lottie.LottieAnimationView
 import kotlin.math.pow
 
 class MainActivity : AppCompatActivity() {
@@ -21,6 +23,13 @@ class MainActivity : AppCompatActivity() {
 
     lateinit var resultTextView: TextView
     lateinit var categoryTextView: TextView
+    lateinit var resultAnimationView: LottieAnimationView
+
+    private data class ImcCategoryInfo(
+        val text: String,
+        val colorRes: Int,
+        val animationAsset: String
+    )
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -40,6 +49,7 @@ class MainActivity : AppCompatActivity() {
         calculateButon = findViewById(R.id.calculateButon)
         resultTextView = findViewById(R.id.resultTextView)
         categoryTextView = findViewById(R.id.categoryTextView)
+        resultAnimationView = findViewById(R.id.resultAnimationView)
 
 
         // Dar funcionalidad a los componentes
@@ -71,9 +81,10 @@ class MainActivity : AppCompatActivity() {
 
             resultTextView.text = "%.2f".format(result)
 
-            val (category, categoryColorRes) = getImcCategory(result)
-            categoryTextView.text = category
-            categoryTextView.setTextColor(ContextCompat.getColor(this, categoryColorRes))
+            val categoryInfo = getImcCategory(result)
+            categoryTextView.text = categoryInfo.text
+            categoryTextView.setTextColor(ContextCompat.getColor(this, categoryInfo.colorRes))
+            playCategoryAnimation(categoryInfo.animationAsset)
 
             clearFields()
         }
@@ -86,12 +97,33 @@ class MainActivity : AppCompatActivity() {
         weigthEdidtText.text.clear()
     }
 
-    private fun getImcCategory(imc: Double): Pair<String, Int> {
+    private fun getImcCategory(imc: Double): ImcCategoryInfo {
         return when {
-            imc < 18.5 -> "Bajo peso, come más" to R.color.imc_bajo_peso
-            imc < 25.0 -> "Peso saludable, Well done" to R.color.imc_saludable
-            imc < 30.0 -> "Sobrepeso, hay que cuidarse!" to R.color.imc_sobrepeso
-            else -> "Obesidad, Ponte a dieta ya!" to R.color.imc_obesidad
+            imc < 18.5 -> ImcCategoryInfo(
+                "🍽️ Bajo peso, come más", R.color.imc_bajo_peso, "lottie/bajo_peso.json"
+            )
+            imc < 25.0 -> ImcCategoryInfo(
+                "✅ Peso saludable, Well done", R.color.imc_saludable, "lottie/saludable.json"
+            )
+            imc < 30.0 -> ImcCategoryInfo(
+                "⚠️ Sobrepeso, hay que cuidarse!", R.color.imc_sobrepeso, "lottie/sobrepeso.json"
+            )
+            else -> ImcCategoryInfo(
+                "🚨 Obesidad, Ponte a dieta ya!", R.color.imc_obesidad, "lottie/obesidad.json"
+            )
         }
+    }
+
+    // Cada categoría tiene su propio archivo .json en assets/lottie/; si el archivo
+    // aún no existe (por ejemplo, todavía no se ha añadido la animación real) se
+    // captura el fallo para no crashear y simplemente se oculta la animación.
+    private fun playCategoryAnimation(assetPath: String) {
+        resultAnimationView.setFailureListener { error ->
+            Log.w("MainActivity", "No se pudo cargar la animación $assetPath", error)
+            resultAnimationView.visibility = View.GONE
+        }
+        resultAnimationView.setAnimation(assetPath)
+        resultAnimationView.visibility = View.VISIBLE
+        resultAnimationView.playAnimation()
     }
 }
