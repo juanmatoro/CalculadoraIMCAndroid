@@ -12,12 +12,14 @@ import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.airbnb.lottie.LottieAnimationView
+import com.google.android.material.slider.Slider
 import kotlin.math.pow
 
 class MainActivity : AppCompatActivity() {
 
 
-    lateinit var heigthEdidtText: EditText
+    lateinit var alturaLabelTextView: TextView
+    lateinit var alturaSlider: Slider
     lateinit var weigthEdidtText: EditText
     lateinit var calculateButon: Button
 
@@ -44,12 +46,16 @@ class MainActivity : AppCompatActivity() {
 
         // Buscar por id los componentes en la vista
 
-        heigthEdidtText = findViewById(R.id.heigthEdidtText)
+        alturaLabelTextView = findViewById(R.id.alturaLabelTextView)
+        alturaSlider = findViewById(R.id.alturaSlider)
         weigthEdidtText = findViewById(R.id.weigthEdidtText)
         calculateButon = findViewById(R.id.calculateButon)
         resultTextView = findViewById(R.id.resultTextView)
         categoryTextView = findViewById(R.id.categoryTextView)
         resultAnimationView = findViewById(R.id.resultAnimationView)
+
+        updateAlturaLabel(alturaSlider.value)
+        alturaSlider.addOnChangeListener { _, value, _ -> updateAlturaLabel(value) }
 
 
         // Dar funcionalidad a los componentes
@@ -58,15 +64,13 @@ class MainActivity : AppCompatActivity() {
 
             Log.d("MainActivity", "Boton pulsado")
 
+            // El slider siempre entrega un valor válido dentro de [100, 270],
+            // así que la altura ya no necesita validación
+            val height = alturaSlider.value.toDouble()
+
             // toDoubleOrNull() devuelve null en vez de lanzar excepción si el campo
             // está vacío o no es un número, así evitamos el crash
-            val height = heigthEdidtText.text.toString().toDoubleOrNull()
             val weigth = weigthEdidtText.text.toString().toDoubleOrNull()
-
-            if (height == null || height <= 0.0) {
-                heigthEdidtText.error = "Introduce una altura válida"
-                return@setOnClickListener
-            }
 
             if (weigth == null || weigth <= 0.0) {
                 weigthEdidtText.error = "Introduce un peso válido"
@@ -93,8 +97,11 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun clearFields() {
-        heigthEdidtText.text.clear()
         weigthEdidtText.text.clear()
+    }
+
+    private fun updateAlturaLabel(value: Float) {
+        alturaLabelTextView.text = getString(R.string.label_altura, value.toInt())
     }
 
     private fun getImcCategory(imc: Double): ImcCategoryInfo {

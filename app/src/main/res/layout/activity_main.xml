@@ -23,19 +23,23 @@
     -->
 
     <!--Altura-->
-    <com.google.android.material.textfield.TextInputLayout
-        style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+    <TextView
+        android:id="@+id/alturaLabelTextView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="@string/hint_altura">
+        android:textStyle="bold"
+        android:textSize="16sp"
+        tools:text="Altura: 170 cm"/>
 
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/heigthEdidtText"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:inputType="number"/>
-
-    </com.google.android.material.textfield.TextInputLayout>
+    <com.google.android.material.slider.Slider
+        android:id="@+id/alturaSlider"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:value="170"
+        android:valueFrom="100"
+        android:valueTo="270"
+        android:stepSize="1"
+        app:labelBehavior="floating"/>
 
     <!--    Peso-->
     <com.google.android.material.textfield.TextInputLayout
