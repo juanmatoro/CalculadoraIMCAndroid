@@ -1,7 +1,12 @@
 <resources>
     <string name="app_name">Calculadora-IMC-Android</string>
-    <string name="hint_altura">Altura (cm)</string>
-    <string name="hint_peso">Peso (kg)</string>
+    <string name="altura_titulo">Altura:</string>
+    <string name="peso_titulo">Peso:</string>
+    <string name="peso_menos">−</string>
+    <string name="peso_mas">+</string>
+    <string name="unidad_kg">kg</string>
+    <string name="titulo_pantalla">Calcula tu IMC</string>
     <string name="calcular_imc">Calcular IMC</string>
+    <string name="recalcular">Recalcular</string>
     <string name="resultado_placeholder">00.00</string>
 </resources>
