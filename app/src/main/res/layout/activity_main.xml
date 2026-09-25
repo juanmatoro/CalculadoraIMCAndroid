@@ -12,7 +12,7 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:orientation="vertical"
         android:padding="16dp">
 
@@ -27,11 +27,18 @@
             android:id="@+id/tituloPantallaTextView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
             android:text="@string/titulo_pantalla"
             android:textAlignment="center"
             android:textSize="24sp"
             android:textStyle="bold" />
+
+        <!-- Espaciador flexible: reparte el espacio sobrante entre el
+        título, las tarjetas y los botones para que queden distribuidos
+        uniformemente en la pantalla, sin necesidad de scroll -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
 
         <!--Altura-->
         <com.google.android.material.card.MaterialCardView
@@ -80,11 +87,15 @@
 
         </com.google.android.material.card.MaterialCardView>
 
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+
         <!--    Peso-->
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
             app:cardCornerRadius="16dp"
             app:cardElevation="2dp">
 
@@ -167,12 +178,16 @@
 
         </com.google.android.material.card.MaterialCardView>
 
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+
         <!--    Result-->
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/resultCardView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
             android:visibility="gone"
             app:cardCornerRadius="16dp"
             app:cardElevation="2dp">
@@ -213,11 +228,15 @@
 
         </com.google.android.material.card.MaterialCardView>
 
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
-            android:layout_marginTop="24dp"
             android:orientation="horizontal">
 
             <com.google.android.material.button.MaterialButton

@@ -256,6 +256,84 @@ resultCardView.visibility = View.GONE
 
 ---
 
+## 7. Distribuir las tarjetas uniformemente en vertical, sin scroll
+
+**Objetivo:** que el título, las tres tarjetas y la fila de botones
+no queden todos amontonados arriba (dejando un hueco vacío debajo en
+pantallas grandes), sino repartidos a lo largo de toda la altura
+disponible — y que esto funcione en cualquier tamaño de pantalla
+**sin** que la pantalla necesite scroll.
+
+**La técnica: espaciadores (`View`) con `layout_weight`.** Es el
+equivalente, en un `LinearLayout` clásico de Android, al
+`justify-content: space-between` de CSS Flexbox.
+
+**Antes:** el contenedor vertical medía `wrap_content` (solo lo alto
+que necesitaba su contenido) y cada tarjeta tenía un margen fijo fijo
+(`layout_marginTop="16dp"` o `24dp`) respecto a la anterior. El
+conjunto quedaba pegado arriba y, si la pantalla era más alta que el
+contenido, el resto quedaba vacío.
+
+**Después (vista, `activity_main.xml`):**
+
+1. El contenedor que envuelve todo pasa de `wrap_content` a
+   `match_parent`, para que ocupe toda la pantalla disponible (el
+   alto real, descontando la barra de estado/navegación, que ya
+   gestiona el `ViewCompat.setOnApplyWindowInsetsListener` existente
+   en `MainActivity.kt`):
+   ```xml
+   <LinearLayout
+       android:layout_width="match_parent"
+       android:layout_height="match_parent"
+       android:orientation="vertical"
+       android:padding="16dp">
+   ```
+
+2. Se quitan los márgenes fijos entre elementos (`layout_marginTop`
+   en el título, la tarjeta de Peso, la de Resultado y la fila de
+   botones) y, en su lugar, se intercala un `View` vacío entre cada
+   par de elementos:
+   ```xml
+   <View
+       android:layout_width="match_parent"
+       android:layout_height="0dp"
+       android:layout_weight="1" />
+   ```
+   Uno va: entre el título y la tarjeta de Altura, entre Altura y
+   Peso, entre Peso y Resultado, y entre Resultado y los botones — 4
+   espaciadores en total.
+
+**Por qué funciona:** en un `LinearLayout`, cuando un elemento tiene
+`layout_height="0dp"` + `layout_weight="1"`, Android primero mide
+todos los elementos **sin** peso (el título, las tarjetas, los
+botones) según su contenido real (`wrap_content`), y **todo el
+espacio que sobra** en el contenedor se reparte entre los elementos
+con peso. Como los 4 espaciadores tienen el mismo peso (`1`), cada
+uno recibe exactamente la misma porción de espacio libre → los
+huecos entre título/tarjetas/botones quedan iguales, sin importar si
+la pantalla es de un móvil pequeño o una tablet grande.
+
+**Por qué no hace falta `ScrollView`:** un `ScrollView` sería
+necesario si el contenido pudiera ser *más alto* que la pantalla.
+Aquí se ha optado por lo contrario: dejar que el contenido ocupe
+*como mucho* el alto de la pantalla (`match_parent`) y que sea el
+espacio sobrante el que se reparta, nunca al revés. En un dispositivo
+extremadamente pequeño donde ni siquiera el contenido "comprimido"
+(tarjetas + botones, sin huecos) cupiera entero, los espaciadores
+simplemente se quedarían a `0dp` — el contenido no haría scroll, pero
+tampoco se generaría uno artificialmente; es la solución más simple
+que cumple "sin scroll en cualquier dispositivo" para los tamaños de
+pantalla reales de un teléfono Android.
+
+**Por qué la tarjeta de resultado oculta (sección 6) no rompe el
+reparto:** cuando `resultCardView` está en `GONE`, Android la trata
+como si no existiera a efectos de layout — los dos espaciadores que
+la rodean simplemente se combinan en uno solo más grande, así que
+altura/peso/botones se siguen repartiendo bien tanto si el resultado
+está visible como si no.
+
+---
+
 ## Verificación
 
 Para cada cambio de este documento se comprobó:
