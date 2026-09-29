@@ -4,7 +4,7 @@ App Android nativa, escrita en Kotlin, que calcula el Índice de Masa
 Corporal (IMC) a partir de la altura y el peso introducidos por el usuario,
 y clasifica el resultado según los rangos estándar de la OMS.
 
-## Funcionalidad
+## Funcionalidad ⚒️
 
 - Introduce altura (cm) y peso (kg).
 - Calcula el IMC: `peso / altura(m)²`.
