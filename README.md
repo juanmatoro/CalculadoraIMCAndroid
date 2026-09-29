@@ -1,4 +1,4 @@
-# Calculadora IMC Android
+# Calculadora IMC Android 😜
 
 App Android nativa, escrita en Kotlin, que calcula el Índice de Masa
 Corporal (IMC) a partir de la altura y el peso introducidos por el usuario,
